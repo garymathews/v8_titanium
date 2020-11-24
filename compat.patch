@@ -1,3 +1,26 @@
+From ebff48b87e3d34328c6a6a931bf2b17bd23d232e Mon Sep 17 00:00:00 2001
+From: Gary Mathews <contact@garymathews.com>
+Date: Mon, 23 Nov 2020 17:13:26 -0800
+Subject: [PATCH] compatibility
+
+---
+ include/libplatform/libplatform.h             |   7 +
+ include/v8-internal.h                         |   9 +-
+ include/v8.h                                  | 228 +++++++++++----
+ src/api/api.cc                                | 274 +++++++++++++++++-
+ src/extensions/gc-extension.cc                |   4 +-
+ src/extensions/statistics-extension.cc        |   6 +-
+ .../vtunedomain-support-extension.cc          |   2 +-
+ src/flags/flag-definitions.h                  |   2 +-
+ src/handles/handles.h                         |   1 +
+ src/heap/factory.cc                           |   4 +-
+ src/interpreter/interpreter.cc                |   4 +-
+ src/libplatform/default-platform.cc           |  10 +
+ src/objects/string.cc                         |   4 +-
+ src/parsing/scanner-character-streams.cc      |  34 +--
+ src/snapshot/snapshot.cc                      |   4 +-
+ 15 files changed, 480 insertions(+), 113 deletions(-)
+
 diff --git a/include/libplatform/libplatform.h b/include/libplatform/libplatform.h
 index 1c874ba29b..e6ddee01ae 100644
 --- a/include/libplatform/libplatform.h
@@ -17,10 +40,23 @@ index 1c874ba29b..e6ddee01ae 100644
   * Returns a new instance of the default v8::JobHandle implementation.
   *
 diff --git a/include/v8-internal.h b/include/v8-internal.h
-index fcc36595ba..c2e39f89d6 100644
+index fcc36595ba..57d58669ac 100644
 --- a/include/v8-internal.h
 +++ b/include/v8-internal.h
-@@ -199,6 +199,9 @@ class Internals {
+@@ -184,8 +184,10 @@ class Internals {
+       kIsolateFastCCallCallerFpOffset + kApiSystemPointerSize;
+   static const int kIsolateStackGuardOffset =
+       kIsolateFastCCallCallerPcOffset + kApiSystemPointerSize;
+-  static const int kIsolateRootsOffset =
+-      kIsolateStackGuardOffset + 7 * kApiSystemPointerSize;
++  
++  // NOTE: Hardcode to 128 for Titanium native module compatibility
++  //       for modules built with V8 8.4 and below.
++  static const int kIsolateRootsOffset = 128;
+ 
+   static const int kUndefinedValueRootIndex = 4;
+   static const int kTheHoleValueRootIndex = 5;
+@@ -199,6 +201,9 @@ class Internals {
    static const int kNodeStateMask = 0x7;
    static const int kNodeStateIsWeakValue = 2;
    static const int kNodeStateIsPendingValue = 3;
@@ -1360,3 +1396,6 @@ index de413c8c13..d1d03b417a 100644
    v8::ScriptOrigin origin(resource_name);
    v8::ScriptCompiler::Source source(source_string, origin);
    v8::Local<v8::Script> script;
+-- 
+2.24.3 (Apple Git-128)
+
